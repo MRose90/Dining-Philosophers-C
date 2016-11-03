@@ -23,5 +23,35 @@ int main(int argc, char **argv)
 	pthread_t plato;
 	pthread_t socrates;
 	pthread_t aristotle;
+	char * name = "Thales of Miletus";
+	if(pthread_create(&thales_of_miletus, NULL, produce, (void*)name)){
+		printf("Error creating producer.\n");
+		return 1;
+	}
+	name = "Pythagoras";
+	if(pthread_create(&pythagoras, NULL, produce, (void*)name)){
+		printf("Error creating producer.\n");
+		return 1;
+	}
+	char * name = "Plato";
+	if(pthread_create(&plato, NULL, produce, (void*)name)){
+		printf("Error creating producer.\n");
+		return 1;
+	}
+	char * name = "Socrates";
+	if(pthread_create(&socrates, NULL, produce, (void*)name)){
+		printf("Error creating producer.\n");
+		return 1;
+	}
+	char * name = "Aristotle";
+	if(pthread_create(&aristotle, NULL, produce, (void*)name)){
+		printf("Error creating producer.\n");
+		return 1;
+	}
+	pthread_join(aristotle,NULL)
+	pthread_join(socrates,NULL);
+	pthread_join(plato,NULL);
+	pthread_join(pythagoras,NULL);
+	pthread_join(thales_of_miletus,NULL);
 	return 0;
 }
