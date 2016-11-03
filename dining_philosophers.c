@@ -16,7 +16,6 @@ pthread_mutex_t table;
 
 struct param{
 	char * name;
-	int death;
 };
 void * life_of_a_philosopher(void *arg){
 	time_t t = time(NULL);
@@ -24,7 +23,6 @@ void * life_of_a_philosopher(void *arg){
 	clock_t last_eaten = clock();
 	struct param *p = (struct param *) arg;
 	char * name = p->name;
-	int death = p->death;
 	int thinking;
 	int hungry;
 	int eat;
@@ -39,7 +37,7 @@ void * life_of_a_philosopher(void *arg){
 		//get_forks
 		hungry = 1;
 		while(hungry == 1){
-			if(death == 1 && (int)(clock() - last_eaten) / CLOCKS_PER_SEC > 100){
+			if((int)(clock() - last_eaten) / CLOCKS_PER_SEC > 100){
 				printf("WARNING: %s last ate over 100 seconds ago.\n",name);
 				exit(0);
 			}
@@ -95,7 +93,7 @@ void * life_of_a_philosopher(void *arg){
 		eat = rand()%7+2;
 		t = time(NULL);
 		tm = *localtime(&t);
-		printf("[%d:%02d:%02d] %s is eating for %d seconds.\n"
+		printf("[%d:%02d:%02d] EATING: %s holds the forks for %d seconds.\n"
 				,tm.tm_hour, tm.tm_min, tm.tm_sec,name,eat);
 		last_eaten = clock();
 		sleep(eat);
@@ -134,10 +132,8 @@ int main(int argc, char **argv)
 	pthread_t aristotle;
 	struct param *p;
 	p = (struct param *)malloc(sizeof(struct param));
-	p->death = 0;
-	printf("Death on. "
-	"If any philosopher goes 100 seconds without eating, "
-	"program terminates.\n");
+	printf("If any philosopher goes 100 seconds without eating, "
+	"the program terminates.\n");
 	p->name = "Thales of Miletus";
 	if(pthread_create(&thales_of_miletus, NULL, life_of_a_philosopher, (void*)p)){
 		printf("Error creating producer.\n");
