@@ -3,6 +3,8 @@
 #include <pthread.h>
 #include <semaphore.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <time.h>
 //first too letters are the first initial of the philosophers on either side
 pthread_mutex_t tp_fork;
 pthread_mutex_t pp_fork;
@@ -14,98 +16,110 @@ pthread_mutex_t table;
 
 struct param{
 	char * name;
+	int death;
 };
 void * life_of_a_philosopher(void *arg){
+	time_t t = time(NULL);
+	struct tm tm = *localtime(&t);
+	clock_t last_eaten = clock();
 	struct param *p = (struct param *) arg;
-	struct forks *f = p->f;
 	char * name = p->name;
+	int death = p->death;
 	int thinking;
 	int hungry;
 	int eat;
 	while(1){
 		//think
-		
 		thinking = rand()%20+1;
-		printf("%s is thinking for %d seconds.\n",name,thinking);
+		t = time(NULL);
+		tm = *localtime(&t);
+		printf("[%d:%02d:%02d] %s is thinking for %d seconds.\n"
+				,tm.tm_hour, tm.tm_min, tm.tm_sec,name,thinking);
 		sleep(thinking);
 		//get_forks
 		hungry = 1;
 		while(hungry == 1){
+			if(death == 1 && (int)(clock() - last_eaten) / CLOCKS_PER_SEC > 100){
+				printf("WARNING: %s last ate over 100 seconds ago.\n",name);
+				exit(0);
+			}
 			pthread_mutex_lock(&table);
-			if(strcmp(""Thales of Miletus"",name) == 0){
-				if(pthread_mutex_trylock(at_fork) == 0){
-					if(pthread_mutex_trylock(tp_fork) == 0){
+			if(strcmp("Thales of Miletus",name) == 0){
+				if(pthread_mutex_trylock(&at_fork) == 0){
+					if(pthread_mutex_trylock(&tp_fork) == 0){
 						hungry = 0;
 					} else {
-						pthread_mutex_unlock(at_fork);
+						pthread_mutex_unlock(&at_fork);
 					}
 				}	
 			}
 			if(strcmp("Pythagoras",name) == 0){
-				if(pthread_mutex_trylock(tp_fork) == 0){
-					if(pthread_mutex_trylock(pp_fork) == 0){
+				if(pthread_mutex_trylock(&tp_fork) == 0){
+					if(pthread_mutex_trylock(&pp_fork) == 0){
 						hungry = 0;
 					} else {
-						pthread_mutex_unlock(tp_fork);
+						pthread_mutex_unlock(&tp_fork);
 					}
 				}
 			}
 			if(strcmp("Plato",name) == 0){
-				if(pthread_mutex_trylock(pp_fork) == 0){
-					if(pthread_mutex_trylock(ps_fork) == 0){
+				if(pthread_mutex_trylock(&pp_fork) == 0){
+					if(pthread_mutex_trylock(&ps_fork) == 0){
 						hungry = 0;
 					} else {
-						pthread_mutex_unlock(pp_fork);
+						pthread_mutex_unlock(&pp_fork);
 					}
 				}
 			}
 			if(strcmp("Socrates",name) == 0){
-				if(pthread_mutex_trylock(ps_fork) == 0){
-					if(pthread_mutex_trylock(sa_fork) == 0){
+				if(pthread_mutex_trylock(&ps_fork) == 0){
+					if(pthread_mutex_trylock(&sa_fork) == 0){
 						hungry = 0;
 					} else {
-						pthread_mutex_unlock(ps_fork);
+						pthread_mutex_unlock(&ps_fork);
 					}
 				}
 			}
 			if(strcmp("Aristotle",name) == 0){
-				if(pthread_mutex_trylock(sa_fork) == 0){
-					if(pthread_mutex_trylock(at_fork) == 0){
+				if(pthread_mutex_trylock(&sa_fork) == 0){
+					if(pthread_mutex_trylock(&at_fork) == 0){
 						hungry = 0;
 					} else {
-						pthread_mutex_unlock(sa_fork);
+						pthread_mutex_unlock(&sa_fork);
 					}
 				}
 			}
+			pthread_mutex_unlock(&table);
 		}
-		pthread_mutex_unlock(&table);
 		//eat
 		eat = rand()%7+2;
-		printf("%s is eating for %d seconds.\n",name,eat);
+		t = time(NULL);
+		tm = *localtime(&t);
+		printf("[%d:%02d:%02d] %s is eating for %d seconds.\n"
+				,tm.tm_hour, tm.tm_min, tm.tm_sec,name,eat);
+		last_eaten = clock();
 		sleep(eat);
 		//put_forks
-		pthread_mutex_lock(&table);
-			if(strcmp(""Thales of Miletus"",name) == 0){
-				pthread_mutex_unlock(at_fork);
-				pthread_mutex_unlock(tp_fork);
-			}
-			if(strcmp("Pythagoras",name) == 0){
-
-				pthread_mutex_unlock(tp_fork);
-				pthread_mutex_unlock(pp_fork);
-			}
-			if(strcmp("Plato",name) == 0){
-				pthread_mutex_unlock(pp_fork);
-				pthread_mutex_unlock(ps_fork);
-			}
-			if(strcmp("Socrates",name) == 0){
-				pthread_mutex_unlock(ps_fork);
-				pthread_mutex_unlock(sa_fork);
-			}
-			if(strcmp("Aristotle",name) == 0){
-				pthread_mutex_unlock(sa_fork);
-				pthread_mutex_unlock(at_fork);
-			}
+		if(strcmp("Thales of Miletus",name) == 0){
+			pthread_mutex_unlock(&at_fork);
+			pthread_mutex_unlock(&tp_fork);
+		}
+		if(strcmp("Pythagoras",name) == 0){
+			pthread_mutex_unlock(&tp_fork);
+			pthread_mutex_unlock(&pp_fork);
+		}
+		if(strcmp("Plato",name) == 0){
+			pthread_mutex_unlock(&pp_fork);
+			pthread_mutex_unlock(&ps_fork);
+		}
+		if(strcmp("Socrates",name) == 0){
+			pthread_mutex_unlock(&ps_fork);
+			pthread_mutex_unlock(&sa_fork);
+		}
+		if(strcmp("Aristotle",name) == 0){
+			pthread_mutex_unlock(&sa_fork);
+			pthread_mutex_unlock(&at_fork);
+		}
 	}
 }
 
@@ -120,9 +134,10 @@ int main(int argc, char **argv)
 	pthread_t aristotle;
 	struct param *p;
 	p = (struct param *)malloc(sizeof(struct param));
-	struct forks *f;
-	f = (struct forks *)malloc(sizeof(struct forks));
-	p->forks = f;
+	p->death = 0;
+	printf("Death on. "
+	"If any philosopher goes 100 seconds without eating, "
+	"program terminates.\n");
 	p->name = "Thales of Miletus";
 	if(pthread_create(&thales_of_miletus, NULL, life_of_a_philosopher, (void*)p)){
 		printf("Error creating producer.\n");
@@ -152,7 +167,7 @@ int main(int argc, char **argv)
 		printf("Error creating producer.\n");
 		return 1;
 	}
-	pthread_join(aristotle,NULL)
+	pthread_join(aristotle,NULL);
 	pthread_join(socrates,NULL);
 	pthread_join(plato,NULL);
 	pthread_join(pythagoras,NULL);
