@@ -1,4 +1,5 @@
-//Michael Rose
+//Michael Rose - Matthew Zakrevsky
+//Oregon State University - CS 444 - Concurrency Assignment 2
 //Dining Philosophers with 5 philosophers
 #include <pthread.h>
 #include <semaphore.h>
