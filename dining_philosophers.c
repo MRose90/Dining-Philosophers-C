@@ -137,31 +137,31 @@ int main(int argc, char **argv)
 	"the program terminates.\n");
 	p->name = "Thales of Miletus";
 	if(pthread_create(&thales_of_miletus, NULL, life_of_a_philosopher, (void*)p)){
-		printf("Error creating producer.\n");
+		printf("Error creating Thales.\n");
 		return 1;
 	}
 	sleep(1);
 	p->name = "Pythagoras";
 	if(pthread_create(&pythagoras, NULL, life_of_a_philosopher, (void*)p)){
-		printf("Error creating producer.\n");
+		printf("Error creating Pythagoras.\n");
 		return 1;
 	}
 	sleep(1);
 	p->name = "Plato";
 	if(pthread_create(&plato, NULL, life_of_a_philosopher, (void*)p)){
-		printf("Error creating producer.\n");
+		printf("Error creating Plato.\n");
 		return 1;
 	}
 	sleep(1);
 	p->name = "Socrates";
 	if(pthread_create(&socrates, NULL, life_of_a_philosopher, (void*)p)){
-		printf("Error creating producer.\n");
+		printf("Error creating Socrates.\n");
 		return 1;
 	}
 	sleep(1);
 	p->name = "Aristotle";
 	if(pthread_create(&aristotle, NULL, life_of_a_philosopher, (void*)p)){
-		printf("Error creating producer.\n");
+		printf("Error creating Aristotle.\n");
 		return 1;
 	}
 	pthread_join(aristotle,NULL);
